@@ -18,7 +18,7 @@ export const SimulationLab: React.FC<SimulationLabProps> = ({ initialResult }) =
     'Running empirical demand and category co-purchase models',
     'Evaluating MarginOS dynamic interventions',
     'Calculating deterministic contribution & SLA constraints',
-    'Computing empirical percentiles and 95% confidence intervals'
+    'Computing empirical percentiles and simulation uncertainty ranges'
   ];
 
   const handleRunSimulation = () => {
@@ -48,12 +48,17 @@ export const SimulationLab: React.FC<SimulationLabProps> = ({ initialResult }) =
       {/* HEADER & CONTROLS */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#e7e5e4] pb-5">
         <div>
-          <span className="text-xs uppercase font-semibold text-[#fc8019]">Monte Carlo Decision Engine</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase font-semibold text-[#fc8019]">Monte Carlo Decision Engine</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-[#f5f5f4] text-[#57534e] border border-[#e7e5e4] font-mono font-semibold">
+              SIMULATED INPUTS
+            </span>
+          </div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1917]">
-            Simulation Lab
+            What happens across 100,000 simulated orders?
           </h2>
           <p className="text-xs text-[#78716c] mt-0.5">
-            Test operating strategies across high-volume randomized quick-commerce baskets before applying them.
+            Test operating profit strategies across high-volume randomized synthetic quick-commerce baskets before field deployment.
           </p>
         </div>
 
@@ -144,8 +149,11 @@ export const SimulationLab: React.FC<SimulationLabProps> = ({ initialResult }) =
             <div className="text-xs text-[#16a34a] font-semibold mt-1">
               +{result.delta.liftPercentage.toFixed(0)}% contribution lift
             </div>
-            <div className="text-[11px] text-[#78716c] mt-1">
-              95% CI: [₹{dist.confidenceInterval95[0].toFixed(2)}, ₹{dist.confidenceInterval95[1].toFixed(2)}]
+            <div className="text-[11px] text-[#78716c] mt-1 font-mono">
+              Uncertainty Range: [₹{dist.confidenceInterval95[0].toFixed(2)}, ₹{dist.confidenceInterval95[1].toFixed(2)}]
+            </div>
+            <div className="text-[10px] text-[#a8a29e] mt-0.5">
+              Modelled 95% spread across synthetic draws (not live A/B experiment data)
             </div>
           </div>
         </div>
@@ -171,7 +179,7 @@ export const SimulationLab: React.FC<SimulationLabProps> = ({ initialResult }) =
             <tbody className="divide-y divide-[#e7e5e4] text-[#1c1917]">
               
               <tr>
-                <td className="py-2.5 px-4 font-medium">Average Order Value (AOV)</td>
+                <td className="py-2.5 px-4 font-medium">Average Order Value (Customer Basket)</td>
                 <td className="py-2.5 px-4 text-right font-mono">₹{result.baseline.aov.toFixed(2)}</td>
                 <td className="py-2.5 px-4 text-right font-mono font-semibold text-[#16a34a]">₹{result.marginOS.aov.toFixed(2)}</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#16a34a]">+{result.delta.aovLift.toFixed(2)}</td>
@@ -211,7 +219,7 @@ export const SimulationLab: React.FC<SimulationLabProps> = ({ initialResult }) =
               </tr>
 
               <tr className="bg-[#f5f5f4] font-bold">
-                <td className="py-3 px-4 text-[#1c1917]">Contribution / Order Proxy</td>
+                <td className="py-3 px-4 text-[#1c1917]">Estimated Profit / Order (Contribution Proxy)</td>
                 <td className="py-3 px-4 text-right font-mono text-[#78716c]">₹{result.baseline.contributionPerOrder.toFixed(2)}</td>
                 <td className="py-3 px-4 text-right font-mono text-[#16a34a]">₹{result.marginOS.contributionPerOrder.toFixed(2)}</td>
                 <td className="py-3 px-4 text-right font-mono text-[#16a34a]">+₹{result.delta.contributionPerOrder.toFixed(2)}</td>
@@ -222,6 +230,11 @@ export const SimulationLab: React.FC<SimulationLabProps> = ({ initialResult }) =
 
             </tbody>
           </table>
+        </div>
+
+        {/* METHODOLOGY TRANSPARENCY NOTE */}
+        <div className="p-3 bg-[#f5f5f4] rounded border border-[#e7e5e4] text-xs text-[#57534e]">
+          <strong className="text-[#1c1917]">Methodology Notice:</strong> The Monte Carlo engine executes deterministic mathematical calculations over synthetic quick-commerce basket inputs. Uncertainty ranges represent the modelled spread across randomized pseudo-random draws, not empirical statistical confidence from real-world A/B field trials.
         </div>
       </section>
 

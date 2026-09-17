@@ -46,12 +46,22 @@ export const ContextTopBar: React.FC<ContextTopBarProps> = ({
           
           {/* Data Trust Badge */}
           <div 
-            title="Internal economics proxy for research & pitch demo"
+            title="Prototype research data: all calculations are real deterministic math over synthetic quick-commerce input models."
             className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[#f5f5f4] text-[#57534e] border border-[#e7e5e4] font-mono text-[11px]"
           >
             <Database className="w-3 h-3 text-[#78716c]" />
-            <span>{isSimulatedData ? 'SIMULATED DATA' : 'LIVE READ-ONLY'}</span>
+            <span>{isSimulatedData ? 'SIMULATED DATA (PROTOTYPE)' : 'LIVE READ-ONLY'}</span>
           </div>
+
+          {/* Adapter Status indicator if non-simulation mode */}
+          {appMode !== 'simulation' && (
+            <div 
+              title="Swiggy Instamart live API adapter is not connected in this sandboxed environment; falling back to deterministic local mock adapter."
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#fef3c7] text-[#92400e] border border-[#fde68a] text-[10px] font-mono"
+            >
+              <span>ADAPTER: NOT CONNECTED</span>
+            </div>
+          )}
 
           {/* Mode Switcher */}
           <div className="inline-flex items-center rounded border border-[#e7e5e4] bg-[#f5f5f4] p-0.5">
@@ -62,6 +72,7 @@ export const ContextTopBar: React.FC<ContextTopBarProps> = ({
                   ? 'bg-white text-[#1c1917] shadow-xs'
                   : 'text-[#78716c] hover:text-[#1c1917]'
               }`}
+              title="Full Monte Carlo and deterministic optimization mode"
             >
               Simulation
             </button>
@@ -72,6 +83,7 @@ export const ContextTopBar: React.FC<ContextTopBarProps> = ({
                   ? 'bg-white text-[#1c1917] shadow-xs'
                   : 'text-[#78716c] hover:text-[#1c1917]'
               }`}
+              title="Live MCP integration mode (Adapter prototype)"
             >
               Live Read-Only
             </button>
@@ -82,6 +94,7 @@ export const ContextTopBar: React.FC<ContextTopBarProps> = ({
                   ? 'bg-white text-[#fc8019] shadow-xs'
                   : 'text-[#78716c] hover:text-[#1c1917]'
               }`}
+              title="Assisted checkout interceptor mode"
             >
               Assisted Live
             </button>

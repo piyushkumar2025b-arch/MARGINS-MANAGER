@@ -23,10 +23,18 @@ export const DarkStoreAnalytics: React.FC<DarkStoreAnalyticsProps> = ({
       {/* HEADER & STORE SELECTOR */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e7e5e4] pb-4">
         <div>
-          <span className="text-xs uppercase font-semibold text-[#78716c]">Operations Network</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase font-semibold text-[#78716c]">Operations Network</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-[#f5f5f4] text-[#57534e] border border-[#e7e5e4] font-mono font-semibold">
+              SIMULATED STORE PROFILES
+            </span>
+          </div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1917]">
-            Dark Store Operations & Unit Economics
+            Which stores are losing money, and why?
           </h2>
+          <p className="text-xs text-[#78716c] mt-0.5">
+            Pod-level contribution economics, primary profit leaks, and targeted local operations interventions.
+          </p>
         </div>
 
         {/* Store Switcher */}
@@ -63,14 +71,49 @@ export const DarkStoreAnalytics: React.FC<DarkStoreAnalyticsProps> = ({
             onClick={() => onOpenCopilotWithStore(currentStore.name, `Where is ${currentStore.name} losing money, and what are the top 3 actionable fixes?`)}
             className="text-xs text-[#fc8019] hover:underline font-medium inline-flex items-center gap-1"
           >
-            Ask Copilot to analyze {currentStore.name} →
+            Explain with AI Copilot →
           </button>
+        </div>
+
+        {/* POD 4-STEP WORKFLOW BANNER */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-white border border-[#e7e5e4] rounded p-4 text-xs">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#dc2626]">1. Problem</span>
+            <p className="text-[#1c1917] font-semibold">Pod Margin Gap</p>
+            <p className="text-[#57534e] text-[11px] leading-relaxed">
+              Generates ₹{currentStore.contributionPerOrder.toFixed(2)} estimated profit/order ({currentStore.contributionPerOrder < 7.42 ? 'below' : 'above'} ₹7.42 network average).
+            </p>
+          </div>
+
+          <div className="space-y-1 border-t md:border-t-0 md:border-l border-[#e7e5e4] pt-2 md:pt-0 md:pl-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#d97706]">2. Root Cause</span>
+            <p className="text-[#1c1917] font-semibold truncate">{currentStore.topProfitLeaks[0]?.category.split('(')[0]}</p>
+            <p className="text-[#57534e] text-[11px] leading-relaxed">
+              Drives {currentStore.topProfitLeaks[0]?.sharePct}% of pod profit leakage (₹{(currentStore.topProfitLeaks[0]?.amountPerDay / 1000).toFixed(1)}K/day).
+            </p>
+          </div>
+
+          <div className="space-y-1 border-t md:border-t-0 md:border-l border-[#e7e5e4] pt-2 md:pt-0 md:pl-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#fc8019]">3. Action</span>
+            <p className="text-[#1c1917] font-semibold truncate">{currentStore.topOpportunities[0]?.action}</p>
+            <p className="text-[#57534e] text-[11px] leading-relaxed">
+              Targeted pod-level dispatch and catalog optimization within SLA bounds.
+            </p>
+          </div>
+
+          <div className="space-y-1 border-t md:border-t-0 md:border-l border-[#e7e5e4] pt-2 md:pt-0 md:pl-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#16a34a]">4. Expected Impact</span>
+            <p className="text-[#16a34a] font-semibold font-mono">+₹{((currentStore.topOpportunities[0]?.potentialGainPerDay || 14000) / 1000).toFixed(1)}K / day</p>
+            <p className="text-[#57534e] text-[11px] leading-relaxed">
+              Pod daily contribution expands toward ₹{((currentStore.contributionPerDay + (currentStore.topOpportunities[0]?.potentialGainPerDay || 14000)) / 1000).toFixed(1)}K.
+            </p>
+          </div>
         </div>
 
         {/* Primary Operational Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-2">
           <div>
-            <div className="text-xs font-medium text-[#78716c] uppercase">Contribution / Order</div>
+            <div className="text-xs font-medium text-[#78716c] uppercase">Estimated Profit / Order</div>
             <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] font-mono mt-1">
               ₹{currentStore.contributionPerOrder.toFixed(2)}
             </div>

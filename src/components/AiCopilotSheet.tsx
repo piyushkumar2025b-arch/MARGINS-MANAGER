@@ -96,9 +96,12 @@ export const AiCopilotSheet: React.FC<AiCopilotSheetProps> = ({
           <div>
             <h3 className="text-sm font-bold text-[#1c1917] tracking-tight flex items-center gap-1.5">
               <span>Operational Economics Copilot</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#f5f5f4] text-[#57534e] border border-[#e7e5e4] font-mono font-medium">
+                AI EXPLANATION
+              </span>
             </h3>
             <p className="text-[11px] text-[#78716c]">
-              Grounded in deterministic math · No hallucinated numbers
+              Deterministic math calculates; AI explains mechanics and synthesizes actions
             </p>
           </div>
         </div>

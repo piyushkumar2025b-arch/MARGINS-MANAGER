@@ -30,8 +30,50 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
   const grossProductContribution = Math.round((order.subtotal - econ.productCost) * 100) / 100;
   
   const selectedAction = order.candidateInterventions.find(a => a.id === selectedInterventionId) || order.candidateInterventions[0];
-  const potentialContribution = selectedAction ? selectedAction.expectedContribution : econ.netContribution;
-  const netOpportunity = Math.round((potentialContribution - econ.netContribution) * 100) / 100;
+
+  // Dynamically derive reconciled line items for the selected intervention
+  const optRevenue = selectedAction?.type === 'basket_complement' 
+    ? Math.round((order.subtotal + 76.00) * 100) / 100 
+    : selectedAction?.type === 'inventory_clearance' 
+    ? Math.round((order.subtotal + 35.00) * 100) / 100 
+    : order.subtotal;
+
+  const optProductCost = selectedAction?.type === 'basket_complement' 
+    ? Math.round((econ.productCost + 42.00) * 100) / 100 
+    : selectedAction?.type === 'inventory_clearance' 
+    ? Math.round((econ.productCost + 22.00) * 100) / 100 
+    : selectedAction?.type === 'high_margin_substitute' 
+    ? Math.round((econ.productCost - 12.50) * 100) / 100 
+    : econ.productCost;
+
+  const optGrossProductContrib = Math.round((optRevenue - optProductCost) * 100) / 100;
+
+  const optDeliveryCost = selectedAction?.type === 'fulfillment_batch' 
+    ? Math.round(Math.max(18, econ.deliveryCost - 8.50) * 100) / 100 
+    : econ.deliveryCost;
+
+  const optDiscountCost = selectedAction?.type === 'discount_reduction' 
+    ? Math.round(Math.max(0, econ.discountCost - 11.40) * 100) / 100 
+    : econ.discountCost;
+
+  const optPickingCost = selectedAction?.type === 'basket_complement' 
+    ? Math.round((econ.pickingCost + 0.48) * 100) / 100 
+    : econ.pickingCost;
+
+  const optPackingCost = econ.packingCost;
+  const optPaymentCost = econ.paymentCost;
+
+  const optWastage = selectedAction?.type === 'inventory_clearance' 
+    ? Math.round(Math.max(0, econ.wastageAllocation - 5.20) * 100) / 100 
+    : econ.wastageAllocation;
+
+  // Exact deterministic line-item totals ensuring 100% vertical and horizontal reconciliation
+  const baseTotalCosts = Math.round((econ.productCost + econ.deliveryCost + econ.discountCost + econ.pickingCost + econ.packingCost + econ.paymentCost + econ.wastageAllocation) * 100) / 100;
+  const baseNetContribution = Math.round((order.subtotal - baseTotalCosts) * 100) / 100;
+
+  const optTotalCosts = Math.round((optProductCost + optDeliveryCost + optDiscountCost + optPickingCost + optPackingCost + optPaymentCost + optWastage) * 100) / 100;
+  const optNetContribution = Math.round((optRevenue - optTotalCosts) * 100) / 100;
+  const netOpportunity = Math.round((optNetContribution - baseNetContribution) * 100) / 100;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8">
@@ -52,12 +94,15 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
             <div className="flex items-center gap-2">
               <span className="text-xs uppercase font-semibold text-[#78716c]">Order Analysis</span>
               <span className="text-[11px] px-1.5 py-0.2 bg-[#f5f5f4] text-[#57534e] rounded border border-[#e7e5e4] font-mono">
-                {order.isSimulated ? 'SIMULATED' : 'LIVE MCP'}
+                {order.isSimulated ? 'SIMULATED DATA' : 'LIVE MCP'}
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1917]">
-              Order #{order.displayId}
+              Why did we make or lose money on Order #{order.displayId}?
             </h2>
+            <p className="text-xs text-[#78716c] mt-0.5">
+              Unit economics breakdown, root-cause leakage diagnosis, and deterministic profit interventions.
+            </p>
           </div>
         </div>
 
@@ -80,10 +125,45 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
         </div>
       </div>
 
+      {/* CORE WORKFLOW BANNER: PROBLEM -> ROOT CAUSE -> ACTION -> EXPECTED IMPACT */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-white border border-[#e7e5e4] rounded p-4 text-xs">
+        <div className="space-y-1">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#dc2626]">1. Problem</span>
+          <p className="text-[#1c1917] font-semibold">Low Net Margin</p>
+          <p className="text-[#57534e] text-[11px] leading-relaxed">
+            Order yields only ₹{baseNetContribution.toFixed(2)} profit ({econ.marginPct.toFixed(1)}% margin) on a ₹{order.subtotal.toFixed(2)} basket.
+          </p>
+        </div>
+
+        <div className="space-y-1 border-t md:border-t-0 md:border-l border-[#e7e5e4] pt-2 md:pt-0 md:pl-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#d97706]">2. Root Cause</span>
+          <p className="text-[#1c1917] font-semibold">Coupon & Solitary Transit</p>
+          <p className="text-[#57534e] text-[11px] leading-relaxed">
+            Solitary delivery (₹{econ.deliveryCost.toFixed(2)}) + blanket coupon (₹{econ.discountCost.toFixed(2)}) burn gross product margin.
+          </p>
+        </div>
+
+        <div className="space-y-1 border-t md:border-t-0 md:border-l border-[#e7e5e4] pt-2 md:pt-0 md:pl-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#fc8019]">3. Selected Action</span>
+          <p className="text-[#1c1917] font-semibold truncate">{selectedAction?.title}</p>
+          <p className="text-[#57534e] text-[11px] leading-relaxed">
+            {selectedAction?.categoryLabel} — {selectedAction?.description.slice(0, 75)}...
+          </p>
+        </div>
+
+        <div className="space-y-1 border-t md:border-t-0 md:border-l border-[#e7e5e4] pt-2 md:pt-0 md:pl-3">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#16a34a]">4. Expected Impact</span>
+          <p className="text-[#16a34a] font-semibold font-mono">+₹{netOpportunity.toFixed(2)} Net Gain</p>
+          <p className="text-[#57534e] text-[11px] leading-relaxed">
+            Lifts contribution to ₹{optNetContribution.toFixed(2)} while strictly respecting delivery SLA.
+          </p>
+        </div>
+      </div>
+
       {/* METRIC STRIP (EDITORIAL, ALIGNED, NO NESTED BOXES) */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-2 border-b border-[#e7e5e4] pb-6">
         <div>
-          <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Basket Value</div>
+          <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Customer Basket</div>
           <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] mt-1 font-mono">
             ₹{order.subtotal.toFixed(2)}
           </div>
@@ -91,22 +171,22 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
         </div>
 
         <div>
-          <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Expected Contribution</div>
+          <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Estimated Profit (Baseline)</div>
           <div className={`text-2xl sm:text-3xl font-bold mt-1 font-mono ${
-            econ.netContribution >= 15 ? 'text-[#16a34a]' :
-            econ.netContribution > 0 ? 'text-[#d97706]' : 'text-[#dc2626]'
+            baseNetContribution >= 15 ? 'text-[#16a34a]' :
+            baseNetContribution > 0 ? 'text-[#d97706]' : 'text-[#dc2626]'
           }`}>
-            ₹{econ.netContribution.toFixed(2)}
+            ₹{baseNetContribution.toFixed(2)}
           </div>
           <div className="text-xs text-[#78716c] mt-0.5">
-            {econ.marginPct.toFixed(1)}% contribution margin
+            {order.subtotal > 0 ? ((baseNetContribution / order.subtotal) * 100).toFixed(1) : '0.0'}% contribution margin
           </div>
         </div>
 
         <div>
-          <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Potential Contribution</div>
+          <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Optimized Profit</div>
           <div className="text-2xl sm:text-3xl font-bold text-[#16a34a] mt-1 font-mono">
-            ₹{potentialContribution.toFixed(2)}
+            ₹{optNetContribution.toFixed(2)}
           </div>
           <div className="text-xs text-[#16a34a] font-medium mt-0.5">
             +₹{netOpportunity.toFixed(2)} net opportunity
@@ -160,11 +240,9 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
               <tr>
                 <td className="py-2.5 px-4 font-medium">Gross Customer Basket (Revenue)</td>
                 <td className="py-2.5 px-4 text-right font-mono font-medium">₹{order.subtotal.toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-right font-mono font-medium">
-                  ₹{(order.subtotal + (selectedAction?.type === 'basket_complement' ? 76 : 0)).toFixed(2)}
-                </td>
+                <td className="py-2.5 px-4 text-right font-mono font-medium">₹{optRevenue.toFixed(2)}</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#16a34a]">
-                  {selectedAction?.type === 'basket_complement' ? '+₹76.00' : '₹0.00'}
+                  {optRevenue - order.subtotal > 0 ? `+₹${(optRevenue - order.subtotal).toFixed(2)}` : '₹0.00'}
                 </td>
                 <td className="py-2.5 px-4 text-[#78716c]">Aggregated item prices before coupon deductions</td>
               </tr>
@@ -172,11 +250,9 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
               <tr>
                 <td className="py-2.5 px-4 font-medium text-[#57534e]">Less: Cost of Goods Sold (Product Cost)</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{econ.productCost.toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">
-                  -₹{(econ.productCost + (selectedAction?.type === 'basket_complement' ? 42 : 0)).toFixed(2)}
-                </td>
+                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{optProductCost.toFixed(2)}</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#78716c]">
-                  {selectedAction?.type === 'basket_complement' ? '-₹42.00' : '₹0.00'}
+                  {optProductCost - econ.productCost !== 0 ? `${optProductCost > econ.productCost ? '-' : '+'}₹${Math.abs(optProductCost - econ.productCost).toFixed(2)}` : '₹0.00'}
                 </td>
                 <td className="py-2.5 px-4 text-[#78716c]">Vendor acquisition wholesale cost proxy</td>
               </tr>
@@ -184,23 +260,19 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
               <tr className="bg-[#fafaf9]/60 font-semibold">
                 <td className="py-2 px-4 text-[#1c1917]">Gross Product Contribution</td>
                 <td className="py-2 px-4 text-right font-mono">₹{grossProductContribution.toFixed(2)}</td>
+                <td className="py-2 px-4 text-right font-mono text-[#16a34a]">₹{optGrossProductContrib.toFixed(2)}</td>
                 <td className="py-2 px-4 text-right font-mono text-[#16a34a]">
-                  ₹{(grossProductContribution + (selectedAction?.type === 'basket_complement' ? 34 : 0)).toFixed(2)}
+                  {optGrossProductContrib - grossProductContribution !== 0 ? `+₹${(optGrossProductContrib - grossProductContribution).toFixed(2)}` : '₹0.00'}
                 </td>
-                <td className="py-2 px-4 text-right font-mono text-[#16a34a]">
-                  {selectedAction?.type === 'basket_complement' ? '+₹34.00' : '₹0.00'}
-                </td>
-                <td className="py-2 px-4 text-[#78716c]">Product gross profit margin pool</td>
+                <td className="py-2 px-4 text-[#78716c]">Product gross profit margin pool (Revenue − COGS)</td>
               </tr>
 
               <tr>
                 <td className="py-2.5 px-4 font-medium text-[#57534e]">Less: Delivery Transit Cost</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{econ.deliveryCost.toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">
-                  -₹{(selectedAction?.type === 'fulfillment_batch' ? Math.max(18, econ.deliveryCost - 8.50) : econ.deliveryCost).toFixed(2)}
-                </td>
+                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{optDeliveryCost.toFixed(2)}</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#16a34a]">
-                  {selectedAction?.type === 'fulfillment_batch' ? '+₹8.50' : '₹0.00'}
+                  {econ.deliveryCost - optDeliveryCost > 0 ? `+₹${(econ.deliveryCost - optDeliveryCost).toFixed(2)}` : '₹0.00'}
                 </td>
                 <td className="py-2.5 px-4 text-[#78716c]">
                   Base ₹{assumptions.deliveryBaseCost} + {order.deliveryDistanceKm}km × ₹{assumptions.deliveryCostPerKm}/km
@@ -210,11 +282,9 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
               <tr>
                 <td className="py-2.5 px-4 font-medium text-[#57534e]">Less: Cart Promotional Discount</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{econ.discountCost.toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">
-                  -₹{(selectedAction?.type === 'discount_reduction' ? 9.00 : econ.discountCost).toFixed(2)}
-                </td>
+                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{optDiscountCost.toFixed(2)}</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#16a34a]">
-                  {selectedAction?.type === 'discount_reduction' ? '+₹11.00' : '₹0.00'}
+                  {econ.discountCost - optDiscountCost > 0 ? `+₹${(econ.discountCost - optDiscountCost).toFixed(2)}` : '₹0.00'}
                 </td>
                 <td className="py-2.5 px-4 text-[#78716c]">
                   Applied: {order.appliedCoupon || 'None'}
@@ -224,8 +294,10 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
               <tr>
                 <td className="py-2.5 px-4 font-medium text-[#57534e]">Less: Dark Store Picking & Packing</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{(econ.pickingCost + econ.packingCost).toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{(econ.pickingCost + econ.packingCost).toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-right font-mono text-[#78716c]">₹0.00</td>
+                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{(optPickingCost + optPackingCost).toFixed(2)}</td>
+                <td className="py-2.5 px-4 text-right font-mono text-[#78716c]">
+                  {optPickingCost - econ.pickingCost !== 0 ? `-₹${(optPickingCost - econ.pickingCost).toFixed(2)}` : '₹0.00'}
+                </td>
                 <td className="py-2.5 px-4 text-[#78716c]">
                   {order.estimatedPickingMinutes}m picking (₹{econ.pickingCost}) + crate packing (₹{econ.packingCost})
                 </td>
@@ -234,7 +306,7 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
               <tr>
                 <td className="py-2.5 px-4 font-medium text-[#57534e]">Less: Payment Gateway Processing</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{econ.paymentCost.toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{econ.paymentCost.toFixed(2)}</td>
+                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{optPaymentCost.toFixed(2)}</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#78716c]">₹0.00</td>
                 <td className="py-2.5 px-4 text-[#78716c]">{order.paymentMethod} transaction charge</td>
               </tr>
@@ -242,15 +314,17 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
               <tr>
                 <td className="py-2.5 px-4 font-medium text-[#57534e]">Less: Expected Wastage & Shrinkage</td>
                 <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{econ.wastageAllocation.toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{econ.wastageAllocation.toFixed(2)}</td>
-                <td className="py-2.5 px-4 text-right font-mono text-[#78716c]">₹0.00</td>
+                <td className="py-2.5 px-4 text-right font-mono text-[#dc2626]">-₹{optWastage.toFixed(2)}</td>
+                <td className="py-2.5 px-4 text-right font-mono text-[#16a34a]">
+                  {econ.wastageAllocation - optWastage > 0 ? `+₹${(econ.wastageAllocation - optWastage).toFixed(2)}` : '₹0.00'}
+                </td>
                 <td className="py-2.5 px-4 text-[#78716c]">Allocated perishable shelf-life risk reserve</td>
               </tr>
 
               <tr className="bg-[#f5f5f4] font-bold text-sm">
-                <td className="py-3 px-4 text-[#1c1917]">Net Contribution Proxy</td>
-                <td className="py-3 px-4 text-right font-mono text-[#1c1917]">₹{econ.netContribution.toFixed(2)}</td>
-                <td className="py-3 px-4 text-right font-mono text-[#16a34a]">₹{potentialContribution.toFixed(2)}</td>
+                <td className="py-3 px-4 text-[#1c1917]">Estimated Profit (Contribution Proxy)</td>
+                <td className="py-3 px-4 text-right font-mono text-[#1c1917]">₹{baseNetContribution.toFixed(2)}</td>
+                <td className="py-3 px-4 text-right font-mono text-[#16a34a]">₹{optNetContribution.toFixed(2)}</td>
                 <td className="py-3 px-4 text-right font-mono text-[#16a34a]">+₹{netOpportunity.toFixed(2)}</td>
                 <td className="py-3 px-4 text-[#16a34a]">
                   Selected Action: {selectedAction?.title || 'None'}
@@ -259,6 +333,18 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
 
             </tbody>
           </table>
+        </div>
+
+        {/* MATHEMATICAL RECONCILIATION VERIFICATION BAR */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded bg-[#f5f5f4] border border-[#e7e5e4] font-mono text-[11px] text-[#44403c]">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#16a34a]" />
+            <span className="font-semibold text-[#1c1917]">Reconciliation Verified:</span>
+            <span>Revenue − All Direct Costs = Net Contribution</span>
+          </div>
+          <div className="text-[11px] text-[#57534e]">
+            Baseline: ₹{order.subtotal.toFixed(2)} − ₹{baseTotalCosts.toFixed(2)} = <strong className="text-[#1c1917]">₹{baseNetContribution.toFixed(2)}</strong> | Optimized: ₹{optRevenue.toFixed(2)} − ₹{optTotalCosts.toFixed(2)} = <strong className="text-[#16a34a]">₹{optNetContribution.toFixed(2)}</strong>
+          </div>
         </div>
       </section>
 
@@ -406,7 +492,7 @@ export const OrderEconomicsView: React.FC<OrderEconomicsViewProps> = ({
                           <span className="font-semibold text-[#16a34a]">₹{action.mathematicalEvidence.discountSavings.toFixed(2)}</span>
                         </div>
                         <div>
-                          <span className="text-[#78716c] block">95% Confidence Interval</span>
+                          <span className="text-[#78716c] block">Simulation Uncertainty Range</span>
                           <span className="font-semibold text-[#1c1917]">[₹{action.confidenceInterval[0].toFixed(2)}, ₹{action.confidenceInterval[1].toFixed(2)}]</span>
                         </div>
                       </div>

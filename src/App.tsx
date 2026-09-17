@@ -112,7 +112,7 @@ export default function App() {
         break;
 
       case 2: // Optimize a Dark Store
-        setSelectedStoreId('store_maa_001'); // Tambaram Pod
+        setSelectedStoreId('store_chn_001'); // Tambaram West Hub
         setActiveTab('stores');
         break;
 
@@ -163,13 +163,26 @@ export default function App() {
   // Copilot backend query dispatcher
   const handleExecuteCopilotQuery = async (prompt: string, context?: any): Promise<CopilotResponse> => {
     try {
-      const res = await fetch('/api/copilot/query', {
+      const res = await fetch('/api/copilot/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, context })
+        body: JSON.stringify({ 
+          query: prompt,
+          prompt, 
+          activeOrderId: currentOrder.displayId,
+          context 
+        })
       });
       if (!res.ok) throw new Error('API query failed');
-      return await res.json();
+      const data = await res.json();
+      return {
+        answer: data.answer || data.response || 'No explanation generated.',
+        evidenceUsed: data.evidenceUsed || (data.evidence?.values ? data.evidence.values.map((v: any) => `${v.name}: ${v.value}`) : [
+          `Order #${currentOrder.displayId} AOV: ₹${currentOrder.subtotal.toFixed(2)}`,
+          `Current Net Contribution: ₹${currentOrder.economics.netContribution.toFixed(2)}`
+        ]),
+        suggestedNextAction: data.suggestedNextAction || 'Inspect unit economics waterfall'
+      };
     } catch {
       // Deterministic client fallback if server endpoint is busy
       return {
@@ -187,10 +200,10 @@ export default function App() {
 
   // Navigation Items
   const navTabs = [
-    { id: 'overview', label: 'Overview', icon: BarChart3, badge: 'Network' },
+    { id: 'overview', label: 'Overview', icon: BarChart3, badge: 'Modelled' },
     { id: 'order', label: 'Order Economics', icon: ShoppingBag, badge: currentOrder.displayId },
-    { id: 'stores', label: 'Dark Stores', icon: Building2, badge: '1,200 Pods' },
-    { id: 'simulation', label: 'Simulation Lab', icon: Play, badge: '100K' },
+    { id: 'stores', label: 'Dark Stores', icon: Building2, badge: '6 Sample Pods' },
+    { id: 'simulation', label: 'Simulation Lab', icon: Play, badge: '100K Sim' },
     { id: 'digital_twin', label: 'Digital Twin', icon: Sliders },
     { id: 'experiments', label: 'Experiments', icon: Beaker },
     { id: 'pitch', label: 'Pitch Mode', icon: Presentation, highlight: true }
@@ -272,11 +285,13 @@ export default function App() {
       <ContextTopBar
         currentTab={activeTab === 'pitch' ? 'Swiggy Executive Story' : activeTab.replace('_', ' ')}
         subTitle={
-          activeTab === 'order' ? `Focus #${currentOrder.displayId} · ${currentOrder.storeName}` :
-          activeTab === 'stores' ? '1,200 Pod Cluster Operations' :
-          activeTab === 'simulation' ? 'Monte Carlo 100,000 Order Engine' :
-          activeTab === 'pitch' ? 'Executive Presentation' :
-          'Today · 1,200 stores · National Pod Network'
+          activeTab === 'overview' ? 'Where are we losing money across the network? · Modelled 6-store extrapolation (200x)' :
+          activeTab === 'order' ? `Why did we make or lose money on this order? · #${currentOrder.displayId} (${currentOrder.storeName})` :
+          activeTab === 'stores' ? 'Which stores are losing money, and why? · 6 Sample Pods (Simulated)' :
+          activeTab === 'simulation' ? 'What happens across 100,000 simulated orders? · Monte Carlo Engine' :
+          activeTab === 'digital_twin' ? 'What happens if delivery costs or basket sizes change? · Sensitivity Model' :
+          activeTab === 'experiments' ? 'Which profit interventions should we test in the real world? · Hypotheses' :
+          'Executive Presentation · Unit Economics Strategy'
         }
         appMode={appMode}
         onModeChange={(m) => setAppMode(m)}

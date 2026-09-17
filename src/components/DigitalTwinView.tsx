@@ -40,12 +40,17 @@ export const DigitalTwinView: React.FC<DigitalTwinViewProps> = ({ networkTotals 
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e7e5e4] pb-4">
         <div>
-          <span className="text-xs uppercase font-semibold text-[#fc8019]">Quick-Commerce Digital Twin</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase font-semibold text-[#fc8019]">Quick-Commerce Digital Twin</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-[#f5f5f4] text-[#57534e] border border-[#e7e5e4] font-mono font-semibold">
+              SCENARIO SENSITIVITY MODEL
+            </span>
+          </div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1917]">
-            Network Sensitivity Analysis
+            What if we change delivery, pricing, or basket variables?
           </h2>
           <p className="text-xs text-[#78716c] mt-0.5">
-            Stress-test operating parameters across 1,200 virtual dark stores and observe bottom-line run rate changes.
+            Interactive sensitivity model across an illustrative 1,200 pod network (extrapolated from sample pods).
           </p>
         </div>
 

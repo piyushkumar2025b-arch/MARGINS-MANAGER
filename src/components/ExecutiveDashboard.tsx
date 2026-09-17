@@ -23,50 +23,90 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
     <div className="space-y-8 max-w-7xl mx-auto px-4 sm:px-6 py-6">
       
       {/* SECTION 1: BUSINESS SITUATION (EDITORIAL HORIZONTAL BAND) */}
-      <section aria-labelledby="section-today" className="border-b border-[#e7e5e4] pb-6">
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 mb-4">
+      <section aria-labelledby="section-today" className="border-b border-[#e7e5e4] pb-6 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
           <div>
-            <span className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">National Network Status</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs uppercase tracking-wider font-semibold text-[#78716c]">National Network Status</span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-[#f5f5f4] text-[#57534e] border border-[#e7e5e4] font-mono font-semibold">
+                MODELLED · ILLUSTRATIVE ESTIMATE
+              </span>
+            </div>
             <h2 id="section-today" className="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1917]">
-              Today's Operating Economics
+              Where are we losing money across the network?
             </h2>
           </div>
-          <div className="text-xs text-[#78716c]">
-            Based on {networkTotals.storeCount.toLocaleString()} virtual dark stores · {(networkTotals.totalOrdersPerDay / 100000).toFixed(1)}L orders/day
+          <div className="text-xs text-[#78716c] font-mono text-right">
+            <span>Illustrative estimate: 6 sample dark stores extrapolated 200x (~18.6L orders/day)</span>
           </div>
         </div>
 
-        {/* Aligned Metric Group — No card grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-3">
+        {/* CORE 4-STEP WORKFLOW BANNER */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3 bg-white border border-[#e7e5e4] rounded p-4 text-xs">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#dc2626]">1. Problem</span>
+            <p className="text-[#1c1917] font-semibold">Margin Erosion on High Volume</p>
+            <p className="text-[#57534e] text-[11px] leading-relaxed">
+              Network generates only ₹{networkTotals.networkContributionPerOrder.toFixed(2)} estimated profit per order despite ₹{networkTotals.networkAov.toFixed(0)} average basket size.
+            </p>
+          </div>
+
+          <div className="space-y-1 border-t md:border-t-0 md:border-l border-[#e7e5e4] pt-2 md:pt-0 md:pl-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#d97706]">2. Root Cause</span>
+            <p className="text-[#1c1917] font-semibold">Discount Burn & Solitary Trips</p>
+            <p className="text-[#57534e] text-[11px] leading-relaxed">
+              Discounts burn ₹18.20/order (47% avoidable) and unbatched transit costs ₹31.10/order across 1.8km avg distance.
+            </p>
+          </div>
+
+          <div className="space-y-1 border-t md:border-t-0 md:border-l border-[#e7e5e4] pt-2 md:pt-0 md:pl-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#fc8019]">3. Action</span>
+            <p className="text-[#1c1917] font-semibold">Deterministic Interventions</p>
+            <p className="text-[#57534e] text-[11px] leading-relaxed">
+              Targeted coupon rationalization, cart-affinity high-margin complements, and safe spatial dispatch batching.
+            </p>
+          </div>
+
+          <div className="space-y-1 border-t md:border-t-0 md:border-l border-[#e7e5e4] pt-2 md:pt-0 md:pl-3">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#16a34a]">4. Expected Impact</span>
+            <p className="text-[#16a34a] font-semibold font-mono">+₹5.40 / order net</p>
+            <p className="text-[#57534e] text-[11px] leading-relaxed">
+              Unlocks estimated ₹{(networkTotals.totalOpportunityPerDay / 100000).toFixed(2)}L/day across illustrative 1,200 pod network.
+            </p>
+          </div>
+        </div>
+
+        {/* Aligned Metric Group — Plain English labels */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-2">
           <div>
-            <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Contribution / Order</div>
-            <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] tracking-tight mt-1">
+            <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Estimated Profit / Order</div>
+            <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] tracking-tight mt-1 font-mono">
               ₹{networkTotals.networkContributionPerOrder.toFixed(2)}
             </div>
             <div className="text-xs text-[#16a34a] mt-0.5 flex items-center gap-0.5">
-              <span>+₹5.40 opportunity</span>
+              <span>+₹5.40 opportunity (Modelled)</span>
             </div>
           </div>
 
           <div>
-            <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Average Order Value</div>
-            <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] tracking-tight mt-1">
+            <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Average Customer Basket</div>
+            <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] tracking-tight mt-1 font-mono">
               ₹{networkTotals.networkAov.toFixed(0)}
             </div>
             <div className="text-xs text-[#78716c] mt-0.5">Target: ₹735 (+5%)</div>
           </div>
 
           <div>
-            <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Discount / Order</div>
-            <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] tracking-tight mt-1">
+            <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Discount Burn / Order</div>
+            <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] tracking-tight mt-1 font-mono">
               ₹18.20
             </div>
             <div className="text-xs text-[#dc2626] mt-0.5">₹6.90 avoidable leakage</div>
           </div>
 
           <div>
-            <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Delivery Cost / Order</div>
-            <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] tracking-tight mt-1">
+            <div className="text-xs font-medium text-[#78716c] uppercase tracking-wide">Delivery Transit Cost / Order</div>
+            <div className="text-2xl sm:text-3xl font-bold text-[#1c1917] tracking-tight mt-1 font-mono">
               ₹31.10
             </div>
             <div className="text-xs text-[#d97706] mt-0.5">28% batching potential</div>
@@ -79,14 +119,19 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
         
         {/* Left Column: Network Opportunity Headline */}
         <div className="lg:col-span-5 space-y-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#fc8019]">
-            Unified Optimization Impact
-          </span>
-          <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1c1917]">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-[#fc8019]">
+              Unified Optimization Impact
+            </span>
+            <span className="text-[10px] px-1.5 py-0.2 rounded bg-[#f5f5f4] text-[#78716c] font-mono border border-[#e7e5e4]">
+              MODELLED
+            </span>
+          </div>
+          <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-[#1c1917] font-mono">
             ₹{(networkTotals.totalOpportunityPerDay / 100000).toFixed(2)} Lakhs
           </div>
           <p className="text-sm text-[#57534e] leading-relaxed">
-            Estimated network contribution opportunity today across {networkTotals.storeCount} pods. 
+            Illustrative network contribution opportunity today across 1,200 pods (extrapolated from 6 sample pods). 
             Annualized theoretical potential: <strong className="text-[#1c1917]">₹{(networkTotals.annualizedNetworkOpportunity / 10000000).toFixed(1)} Crores</strong>.
           </p>
           
@@ -217,7 +262,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
             </h3>
           </div>
           <div className="text-xs text-[#78716c]">
-            Showing sample hubs from 1,200 national quick-commerce cluster
+            Showing 6 detailed sample pods (Simulated Store Profiles)
           </div>
         </div>
 
@@ -229,8 +274,8 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({
                 <th className="py-2.5 px-4 font-semibold">Store / Pod</th>
                 <th className="py-2.5 px-4 font-semibold">Zone</th>
                 <th className="py-2.5 px-4 font-semibold text-right">Orders/Day</th>
-                <th className="py-2.5 px-4 font-semibold text-right">AOV</th>
-                <th className="py-2.5 px-4 font-semibold text-right">Contribution / Order</th>
+                <th className="py-2.5 px-4 font-semibold text-right">Customer Basket (AOV)</th>
+                <th className="py-2.5 px-4 font-semibold text-right">Estimated Profit / Order</th>
                 <th className="py-2.5 px-4 font-semibold text-right">Daily Opportunity</th>
                 <th className="py-2.5 px-4 font-semibold text-center">Top Leak</th>
                 <th className="py-2.5 px-4 font-semibold text-right">Action</th>

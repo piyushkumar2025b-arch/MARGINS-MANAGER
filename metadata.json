@@ -1,6 +1,6 @@
 {
-  "name": "Remix MarginOS",
-  "description": "AI-powered quick-commerce profit optimization engine for Swiggy Instamart featuring deterministic unit economics, basket expansion, dynamic discounting, dark store analytics, and Monte Carlo simulation.",
+  "name": "MarginOS",
+  "description": "AI-powered quick-commerce profit optimization engine featuring deterministic unit economics, basket expansion, dynamic discounting, dark store analytics, and Monte Carlo simulation.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

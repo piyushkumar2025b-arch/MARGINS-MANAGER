@@ -15,12 +15,17 @@ export const ExperimentLabView: React.FC = () => {
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#e7e5e4] pb-4">
         <div>
-          <span className="text-xs uppercase font-semibold text-[#fc8019]">Statistical Validation</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase font-semibold text-[#fc8019]">Statistical Validation</span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-[#f5f5f4] text-[#57534e] border border-[#e7e5e4] font-mono font-semibold">
+              BENCHMARK SIMULATION DATA
+            </span>
+          </div>
           <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#1c1917]">
-            Experiment Lab
+            How do we know these interventions actually work?
           </h2>
           <p className="text-xs text-[#78716c] mt-0.5">
-            A/B test hypotheses evaluated against baseline operating strategies with confidence intervals and downside guards.
+            Calibrated A/B benchmark hypotheses evaluated against baseline operating strategies. Live telemetry adapter connection required for continuous field experiments.
           </p>
         </div>
 
@@ -98,11 +103,11 @@ export const ExperimentLabView: React.FC = () => {
               <span className="text-[11px] text-[#78716c] block">per order</span>
             </div>
             <div>
-              <span className="text-xs text-[#78716c] block">95% Confidence Interval</span>
+              <span className="text-xs text-[#78716c] block">Simulation Uncertainty Range</span>
               <span className="text-sm font-bold font-mono text-[#1c1917] mt-1 block">
                 [₹{selectedExp.confidenceInterval[0].toFixed(2)}, ₹{selectedExp.confidenceInterval[1].toFixed(2)}]
               </span>
-              <span className="text-[11px] text-[#16a34a] block">Statistically significant</span>
+              <span className="text-[11px] text-[#78716c] block">Modelled 95% interval</span>
             </div>
             <div>
               <span className="text-xs text-[#78716c] block">Sample Size</span>

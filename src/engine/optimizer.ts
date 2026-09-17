@@ -224,12 +224,16 @@ export function evaluateOrderInterventions(
   const expectedIncrementalBatch = Math.round((deliverySavings * pAcceptEta) * 100) / 100;
   const expectedContributionBatch = Math.round((currentEcon.netContribution + expectedIncrementalBatch) * 100) / 100;
 
+  // Deterministic partner order ID based on order hash to ensure reproducible evaluations
+  const partnerHash = order.id.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const partnerOrderNum = String(1000 + (partnerHash % 8999)).padStart(4, '0');
+
   actions.push({
     id: 'act_delivery_batch',
     type: 'fulfillment_batch',
     title: 'Co-Located Dispatch Batching',
     categoryLabel: 'Delivery Economics',
-    description: `Batch with Order #SIM-${Math.floor(1000 + Math.random() * 9000)} within 450m radius (Safe Batching Mode).`,
+    description: `Batch with Order #SIM-${partnerOrderNum} within 450m radius (Safe Batching Mode).`,
     expectedRevenue: currentEcon.revenue,
     expectedCost: currentEcon.productCost + (currentEcon.deliveryCost - deliverySavings) + currentEcon.pickingCost + currentEcon.packingCost + currentEcon.discountCost,
     expectedContribution: expectedContributionBatch,
